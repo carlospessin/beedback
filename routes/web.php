@@ -4,6 +4,8 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
+
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -24,4 +26,5 @@ Route::middleware([
     })->name('dashboard');
 
     Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios');
+    Route::get('/api/roles', [RoleController::class, 'index']);
 });
