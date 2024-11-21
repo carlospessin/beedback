@@ -25,4 +25,7 @@ Route::middleware([
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios');
     Route::get('/api/roles', [RoleController::class, 'index']);
+    Route::post('/register', [UserController::class, 'store']);
+    Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
 });

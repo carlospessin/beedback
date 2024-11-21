@@ -12,7 +12,7 @@ class UserSeeder extends Seeder
     {
         User::factory()->create([
             'name' => 'Beedback Admin',
-            'email' => 'beedback@beedback.com',
+            'email' => 'admin@beedback.com',
             'password' => Hash::make('12345678'),
             'role_id' => 1,
         ]);

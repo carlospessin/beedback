@@ -3,7 +3,7 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import Welcome from '@/Components/Welcome.vue';
 
 const props = defineProps({
-    role_id: Number, // role_id será passado como uma propriedade
+    role_id: Number,
 });
 
 </script>

@@ -12,6 +12,8 @@ import ToastService from 'primevue/toastservice';
 import Dialog from 'primevue/dialog';
 import DataTable from 'primevue/datatable'; 
 import Column from 'primevue/column'; 
+import Select from 'primevue/select';
+import PrimaryButton from '@/Components/PrimaryButton.vue';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -32,6 +34,8 @@ createInertiaApp({
             .component('Dialog', Dialog)
             .component('DataTable', DataTable) 
             .component('Column', Column) 
+            .component('Select', Select) 
+            .component('PrimaryButton', PrimaryButton) 
             .mount(el);
     },
     progress: {
