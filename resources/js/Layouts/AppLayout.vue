@@ -9,9 +9,12 @@ import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import 'primeicons/primeicons.css';
 
-defineProps({
+const props = defineProps({
     title: String,
+    role_id: Number, 
 });
+
+console.log(props);
 
 const showingNavigationDropdown = ref(false);
 
@@ -26,6 +29,7 @@ const switchToTeam = (team) => {
 const logout = () => {
     router.post(route('logout'));
 };
+
 </script>
 
 <template>
@@ -54,9 +58,11 @@ const logout = () => {
                                 </NavLink>
                                 <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
 
-                                <NavLink :href="route('usuarios')" :active="route().current('usuarios')">
-                                    Usuários
-                                </NavLink>
+                                <div v-if="props.role_id === 1"  class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                    <NavLink :href="route('usuarios')" :active="route().current('usuarios')">
+                                        Usuários
+                                    </NavLink>
+                                </div>
                             </div>
                             </div>
                         </div>

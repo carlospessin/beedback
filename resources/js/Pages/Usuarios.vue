@@ -38,9 +38,6 @@ const fetchRoles = async () => {
 
 onMounted(fetchRoles);
 
-console.log(roles)
-
-
 const saveUser = () => {
   submitted.value = true;
 
