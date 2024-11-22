@@ -27,11 +27,23 @@ const userDialog = ref(false);
 const newUser = ref({ name: '', email: '', role: '' });
 const submitted = ref(false);
 const roles = ref([]);
+const isEditMode = ref(false);
+const editingUserId = ref(null);
 
 const openNewUserDialog = () => {
-  newUser.value = { name: '', email: '', role: '' };
-  submitted.value = false;
+  form.reset(); // Reseta o formulário
+  form.id = null; // Indica que é uma criação
   userDialog.value = true;
+  isEditMode.value = false;
+};
+
+const openEditUserDialog = (user) => {
+  form.id = user.id; // Define o ID para indicar que é uma edição
+  form.name = user.name;
+  form.email = user.email;
+  form.role = user.role_id; // Certifique-se de que está usando o `role_id` correto
+  userDialog.value = true;
+  isEditMode.value = true;
 };
 
 const fetchRoles = async () => {
@@ -74,22 +86,36 @@ const hideDialog = () => {
 };
 
 const form = useForm({
-    name: '',
-    email: '',
-    role: ''
+  id: null, // Adiciona o ID para diferenciar entre criar e editar
+  name: '',
+  email: '',
+  role: '',
 });
 
 const submit = () => {
-    form.post('/register', {
-      onSuccess: () => {
-        userDialog.value = false;
-        saveUser();
-      },
-      onError: () => {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Erro ao adicionar usuário.', life: 3000 });
-      },
-    });
-};
+  const url = form.id ? `/users/${form.id}` : '/register';
+  const method = form.id ? 'put' : 'post';
+
+  form[method](url, {
+    onSuccess: (response) => {
+      userDialog.value = false;
+      toast.add({ severity: 'success', summary: 'Sucesso', detail: isEditMode.value ? 'Usuário atualizado!' : 'Usuário adicionado!', life: 3000 });
+      // Atualiza a lista local de usuários após o sucesso
+      if (isEditMode.value) {
+        const index = props.users.findIndex(user => user.id === form.id);
+        if (index > -1) {
+          props.users[index] = { ...props.users[index], ...form };
+        }
+      } else {
+        props.users.push({ ...form });
+      }
+    },
+    onError: () => {
+      userDialog.value = false;
+      toast.add({ severity: 'error', summary: 'Erro', detail: isEditMode.value ? 'Erro ao editar o usuário.' : 'Erro ao salvar o usuário.!', life: 3000 });
+    },
+  });
+}
 
 const deleteUser = async (userId) => {
   // Confirmação antes de deletar
@@ -120,6 +146,7 @@ const deleteUser = async (userId) => {
                 Usuários
             </h2>
         </template>
+        <Toast />
 
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
@@ -154,6 +181,12 @@ const deleteUser = async (userId) => {
                         </Column>
                         <Column header="Ações" style="min-width: 10rem">
                             <template #body="slotProps">
+                              <Button 
+                                    label="" 
+                                    icon="pi pi-pencil" 
+                                    class="p-button-warning p-button-sm" 
+                                    @click="openEditUserDialog(slotProps.data)" 
+                                />
                                 <Button 
                                     label="" 
                                     icon="pi pi-trash" 
@@ -171,7 +204,7 @@ const deleteUser = async (userId) => {
         <!-- Modal de adicionar novo usuário -->
         <Dialog 
             v-model:visible="userDialog" 
-            header="Adicionar Novo Usuário" 
+            :header="isEditMode ? 'Editar Usuário' : 'Adicionar Novo Usuário'" 
             :modal="true" 
             :style="{ width: '450px' }"
             @hide="hideDialog"
@@ -182,25 +215,25 @@ const deleteUser = async (userId) => {
                     <div>
                         <InputLabel for="name" value="Name" />
                         <TextInput
-                            id="name"
-                            v-model="form.name"
-                            type="text"
-                            class="mt-1 block w-full"
-                            required
-                            autofocus
-                            autocomplete="name"
+                          id="name"
+                          v-model="form.name"
+                          type="text"
+                          class="mt-1 block w-full"
+                          required
+                          autofocus
+                          autocomplete="name"
                         />
                         <InputError class="mt-2" :message="form.errors.name" />
                     </div>
                     <div>
                         <InputLabel for="email" value="Email" />
                         <TextInput
-                            id="email"
-                            v-model="form.email"
-                            type="email"
-                            class="mt-1 block w-full"
-                            required
-                            autocomplete="username"
+                          id="email"
+                          v-model="form.email"
+                          type="email"
+                          class="mt-1 block w-full"
+                          required
+                          autocomplete="username"
                         />
                         <InputError class="mt-2" :message="form.errors.email" />
                     </div>
@@ -208,11 +241,12 @@ const deleteUser = async (userId) => {
                         
                         <InputLabel for="email" value="Role" />
                         <Select 
-                            v-model="form.role" 
-                            :options="roles" 
-                            optionLabel="label" 
-                            placeholder="Selecione" 
-                            class="w-full md:w-56" 
+                          v-model="form.role" 
+                          :options="roles" 
+                          optionLabel="label" 
+                          optionValue="value"
+                          placeholder="Selecione" 
+                          class="w-full md:w-56" 
                         />
                         <InputError class="mt-2" :message="form.errors.roles" />
                     </div>
@@ -220,7 +254,7 @@ const deleteUser = async (userId) => {
                         <Button label="Cancelar" icon="pi pi-times" text @click="hideDialog" />
 
                         <PrimaryButton class="ms-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                            Register
+                          {{ isEditMode ? 'Atualizar Usuário' : 'Adicionar Usuário' }}
                         </PrimaryButton>
                     </div>
                 </form>

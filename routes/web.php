@@ -26,6 +26,7 @@ Route::middleware([
     Route::get('/usuarios', [UserController::class, 'index'])->name('usuarios');
     Route::get('/api/roles', [RoleController::class, 'index']);
     Route::post('/register', [UserController::class, 'store']);
+    Route::put('/users/{id}', [UserController::class, 'update']);
     Route::delete('/users/{id}', [UserController::class, 'destroy']);
 
 });

@@ -6,6 +6,7 @@ use App\Models\User;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Redirect;
 
 class UserController extends Controller
 {
@@ -31,7 +32,6 @@ class UserController extends Controller
             'role.value' => 'required', 
         ]);
 
-        // Criar o novo usuário no banco de dados
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -40,6 +40,29 @@ class UserController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Usuário criado com sucesso!');
+    }
+
+    public function update(Request $request, $id)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|max:255|unique:users,email,' . $id,
+            'role' => 'required',
+        ]);
+        
+        try {
+            $user = User::findOrFail($id);
+
+            $user->update([
+                'name' => $validated['name'],
+                'email' => $validated['email'],
+                'role_id' => $validated['role'],
+            ]);
+            
+            return redirect()->back()->with('success', 'Usuário criado com sucesso!');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('data', 'Erro ao atualizar usuário', 400);
+        }
     }
 
     public function destroy($id)
